@@ -15,6 +15,11 @@ RUN dotnet restore
 COPY . .
 RUN dotnet publish -c Release -o out
 
+# Export SQL migrations
+RUN dotnet tool restore
+RUN dotnet tool install --global dotnet-ef
+RUN PATH="$PATH:~/.dotnet/tools" dotnet ef migrations script --project src/Infrastructure --startup-project src/Presentation --output migration_script.sql
+
 # Create runtime environment
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app

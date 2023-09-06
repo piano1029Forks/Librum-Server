@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  librum:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "librum"
+    hostname: librum
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - azurite
+      - mssql
+    environment:
+      - LIBRUM_SELFHOSTED=true
+      - LIBRUM_ADMINEMAIL=your@email.address
+      - LIBRUM_ADMINPASSWORD=YourVeryStrongPasswordForTheLibrumAdminAccount! # CHANGE THIS!
+      - LIBRUM_JWTKEY=YourVeryStrongJWTKEY! # CHANGE THIS!
+      - LIBRUM_DBCONNECTIONSTRING=Server=mssql;Database=Librum;User Id=sa;Password=YourVeryStrongPasswordForThe2019SqlDatbase! # CHANGE THIS!
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: "azurite"
+    hostname: azurite
+    restart: always
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+  mssql:
+    #image: mcr.microsoft.com/mssql/server:2019-latest
+    build:
+      context: ./mssql
+      dockerfile: Dockerfile
+    container_name: "mssql"
+    hostname: mssql
+    restart: always
+    ports:
+      - "1433:1433"
+    environment:
+      # The password must be at least 8 characters long and contain characters from three of the following four groups: uppercase and lowercase letters, numbers, and symbols
+      - SA_PASSWORD=YourVeryStrongPasswordForThe2019SqlDatbase! # CHANGE THIS!
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
